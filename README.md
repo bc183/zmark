@@ -6,12 +6,20 @@ zmark stores bookmarks as JSON in `~/.local/share/zmark/bookmarks.json`. No data
 
 ## Install
 
-### From GitHub Releases
-
-Grab the latest binary from the [releases page](https://github.com/barathc/zmark/releases) and put it somewhere on your `$PATH`:
+### Quick install
 
 ```
-curl -L https://github.com/barathc/zmark/releases/latest/download/zmark-x86_64-linux.tar.gz | tar xz
+curl -fsSL https://raw.githubusercontent.com/bc183/zmark/main/install.sh | sh
+```
+
+Detects your OS and architecture, lets you pick a version, and installs the binary to `/usr/local/bin`.
+
+### Manual download
+
+Grab the latest binary from the [releases page](https://github.com/bc183/zmark/releases) and put it somewhere on your `$PATH`:
+
+```
+curl -L https://github.com/bc183/zmark/releases/latest/download/zmark-x86_64-linux.tar.gz | tar xz
 sudo mv zmark /usr/local/bin/
 ```
 
@@ -82,6 +90,17 @@ zmark search --help
 ```
 
 Every subcommand supports `--help`.
+
+## Claude Code skill
+
+zmark ships with a skill file that lets Claude Code save and retrieve bookmarks on your behalf. To install it:
+
+```
+mkdir -p ~/.claude/skills/zmark
+cp skill.md ~/.claude/skills/zmark/SKILL.md
+```
+
+After that, Claude Code can use zmark commands directly during conversations — bookmarking URLs, searching your collection, etc.
 
 ## Storage format
 
