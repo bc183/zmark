@@ -18,6 +18,13 @@ pub const BookmarkSource = enum {
     }
 };
 
+fn tagsContain(tags: []const []const u8, query: []const u8) bool {
+    for (tags) |tag| {
+        if (containsIgnoreCase(tag, query)) return true;
+    }
+    return false;
+}
+
 pub fn generateUlid() [26]u8 {
     const encoding = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 
@@ -53,6 +60,29 @@ pub fn generateUlid() [26]u8 {
     }
 
     return out;
+}
+
+fn toLower(c: u8) u8 {
+    return if (c >= 'A' and c <= 'Z') c + 32 else c;
+}
+
+pub fn containsIgnoreCase(haystack: []const u8, needle: []const u8) bool {
+    if (needle.len > haystack.len) return false;
+    if (needle.len == 0) return true;
+
+    // Slide a window across haystack
+    const end = haystack.len - needle.len + 1;
+    for (0..end) |i| {
+        var matched = true;
+        for (0..needle.len) |j| {
+            if (toLower(haystack[i + j]) != toLower(needle[j])) {
+                matched = false;
+                break;
+            }
+        }
+        if (matched) return true;
+    }
+    return false;
 }
 
 pub fn splitTags(allocator: std.mem.Allocator, input: []const u8) ![][]const u8 {
@@ -194,6 +224,30 @@ pub const Store = struct {
             if (std.mem.eql(u8, bm.id, id)) return bm;
         }
         return null;
+    }
+
+    /// function to search bookmarks
+    /// providing query will search in title, url and notes (OR contains)
+    /// tags will search in tags (IN)
+    /// providing both tags and query will result in AND condition
+    pub fn search(self: Self, results: *std.ArrayListUnmanaged(usize), query: ?[]const u8, tags: ?[]const u8) !void {
+        for (self.bookmarks.items, 0..) |*bm, i| {
+            const query_match = if (query) |q|
+                containsIgnoreCase(bm.url, q) or
+                    containsIgnoreCase(bm.title, q) or
+                    containsIgnoreCase(bm.notes, q)
+            else
+                true; // no query = match all
+
+            const tags_match = if (tags) |t|
+                tagsContain(bm.tags, t)
+            else
+                true; // no tags = match all
+
+            if (query_match and tags_match) {
+                try results.append(self.allocator, i);
+            }
+        }
     }
 
     fn dupeTags(self: *Self, tags: []const []const u8) ![]const []const u8 {

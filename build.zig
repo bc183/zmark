@@ -28,6 +28,11 @@ pub fn build(b: *std.Build) void {
     // to our consumers. We must give it a name because a Zig package can expose
     // multiple modules and consumers will need to be able to specify which
     // module they want to access.
+    const version = b.option([]const u8, "version", "Version string") orelse "dev";
+
+    const options = b.addOptions();
+    options.addOption([]const u8, "version", version);
+
     const mod = b.addModule("zmark", .{
         // The root source file is the "entry point" of this module. Users of
         // this module will only be able to access public declarations contained
@@ -73,12 +78,8 @@ pub fn build(b: *std.Build) void {
             // List of modules available for import in source files part of the
             // root module.
             .imports = &.{
-                // Here "zmark" is the name you will use in your source code to
-                // import this module (e.g. `@import("zmark")`). The name is
-                // repeated because you are allowed to rename your imports, which
-                // can be extremely useful in case of collisions (which can happen
-                // importing modules from different packages).
                 .{ .name = "zmark", .module = mod },
+                .{ .name = "build_options", .module = options.createModule() },
             },
         }),
     });

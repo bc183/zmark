@@ -9,6 +9,7 @@ pub const Command = enum {
     rm,
     search,
     tags,
+    version,
     help,
 
     pub fn fromString(str: []const u8) ?Command {
