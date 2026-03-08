@@ -29,14 +29,6 @@ fn printUsage(stdout: *Writer) !void {
         \\  version       Print version
         \\  help          Show this help
         \\
-        \\FLAGS:
-        \\  --title       Bookmark title
-        \\  --tags        Comma-separated tags
-        \\  --notes       Free-form notes
-        \\  --source      Who created it (default: "human")
-        \\  --json        Output as JSON
-        \\  --limit N     Max results (default: 20)
-        \\
     );
 }
 
